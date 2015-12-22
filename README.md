@@ -1,1 +1,2 @@
 # instaviewer
+This is my first time trying to work with python, flask and the instagram API. Trying to make a simple app to display your most liked out of the last 20 of your posted pictures/videos along with vital information such as time of day and caption, so you can see when your followers tend to like picture and what they may respond to.
