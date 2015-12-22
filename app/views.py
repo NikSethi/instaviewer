@@ -16,14 +16,15 @@ def index():
     user = {'nickname':'pal'}
     if not code:
         return render_template('index.html', user=user)
-    access_token, user_info = unauthenticated_api.exchange_code_for_access_token(code)
+    try:
+        access_token, user_info = unauthenticated_api.exchange_code_for_access_token(code)
+    except Exception as e:
+        return render_template('index.html', user=user)
     if not access_token:
         return 'Could not get access token'
     api = client.InstagramAPI(access_token=access_token, client_secret=client_secret)
 
     print user_info
-    # request.session['access_token'] = access_token
-    # return render_template('index.html', title='Auth Successful', user='Auth')
 
     userID = user_info['id']
 

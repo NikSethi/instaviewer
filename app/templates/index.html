@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+
 <html>
   <head>
     <title>{{ title }} - microblog</title>
@@ -5,14 +7,28 @@
   </head>
 
   <body>
-      <h1>Hello, {{user['full_name']}}!</h1>
-      {% if user.nickname == 'pal' %}
-        <a class="button" href="https://api.instagram.com/oauth/authorize/?client_id=6b64bcfaa3be4735acc0a509e2bd130d&redirect_uri=http://127.0.0.1:5000/&response_type=code">Sign in to Instagram</a>
-      {% endif %}
+    <div class="container">
+      <div class="row">
 
-      {% for x in media %}
-        <img src="{{x.images.standard_resolution.url}}"
-        <p> {{x['created_time'].strftime('%m/%d %I:%M %p')}} </p>
-      {% endfor %}
+        <div class="twelve columns" style="text-align:center;">
+
+          {% if user.nickname == 'pal' %}
+            <h1>Hello, pal!</h1>
+            <a class="button" href="https://api.instagram.com/oauth/authorize/?client_id=6b64bcfaa3be4735acc0a509e2bd130d&redirect_uri=http://127.0.0.1:5000/&response_type=code">Sign in to Instagram</a>
+
+          {% else %}
+            <h1>Hello, {{user['full_name']}}!</h1>
+          {% endif %}
+
+          {% for x in media %}
+              <img src="{{x.images.standard_resolution.url}}" border='1'>
+              <p>{{x['caption'].text}}</p>
+              <p>{{x['created_time'].strftime('%m/%d %I:%M %p')}}</p>
+          {% endfor %}
+
+
+        </div>
+
+      </div>
   </body>
 </html>
