@@ -1,0 +1,18 @@
+<html>
+  <head>
+    <title>{{ title }} - microblog</title>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='skeleton.css') }}">
+  </head>
+
+  <body>
+      <h1>Hello, {{user['full_name']}}!</h1>
+      {% if user.nickname == 'pal' %}
+        <a class="button" href="https://api.instagram.com/oauth/authorize/?client_id=6b64bcfaa3be4735acc0a509e2bd130d&redirect_uri=http://127.0.0.1:5000/&response_type=code">Sign in to Instagram</a>
+      {% endif %}
+
+      {% for x in media %}
+        <img src="{{x.images.standard_resolution.url}}"
+        <p> {{x['created_time'].strftime('%m/%d %I:%M %p')}} </p>
+      {% endfor %}
+  </body>
+</html>
