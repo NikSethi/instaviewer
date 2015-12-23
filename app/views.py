@@ -1,7 +1,9 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, session
 from instagram.client import InstagramAPI
 from instagram import client, subscriptions
 from app import app
+
+app.secret_key = '\xc7\x8ds|\xfe\x0f\x91\x1d\x83\t\xe7$\xd2\x1e\x91\xf0\xc4c e\x17j\xe3\x8f'
 
 @app.route('/')
 @app.route('/index.html')
@@ -16,17 +18,19 @@ def index():
     user = {'nickname':'pal'}
     if not code:
         return render_template('index.html', user=user)
-    try:
-        access_token, user_info = unauthenticated_api.exchange_code_for_access_token(code)
-    except Exception as e:
-        return render_template('index.html', user=user)
-    if not access_token:
-        return 'Could not get access token'
-    api = client.InstagramAPI(access_token=access_token, client_secret=client_secret)
+    if not 'user' in session.keys():
+        try:
+            access_token, user_info = unauthenticated_api.exchange_code_for_access_token(code)
+            session['token'] = access_token
+            session['user'] = user_info
 
-    print user_info
+        except Exception as e:
+            return render_template('index.html', user=user)
 
-    userID = user_info['id']
+    api = client.InstagramAPI(access_token=session['token'], client_secret=client_secret)
+
+    user = session['user']
+    userID = user['id']
 
     recent_media, next_ = api.user_recent_media(user_id=userID, count=20)
 
@@ -34,5 +38,5 @@ def index():
 
     return render_template('index.html',
                                title='Home',
-                               user=user_info,
+                               user=session['user'],
                                media=recent_media)
