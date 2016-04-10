@@ -1,5 +1,6 @@
 from flask import Flask, render_template
-from instagram.client import InstagramAPI
+# import requests, urllib, pprint
+
 
 app = Flask(__name__)
 from app import views

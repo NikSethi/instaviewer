@@ -1,42 +1,56 @@
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
+import twitter
 from flask import Flask, request, render_template, session
-from instagram.client import InstagramAPI
-from instagram import client, subscriptions
+import urllib
 from app import app
 
-app.secret_key = '\xc7\x8ds|\xfe\x0f\x91\x1d\x83\t\xe7$\xd2\x1e\x91\xf0\xc4c e\x17j\xe3\x8f'
+ACCESS_TOKEN = '880929978-V3Vfb6qx93d9V2zJXHerYJJxFSxwjRouI4R77nMy'
+ACCESS_SECRET = 'c9CbCbDUGktS2AMUfqTLMwf95Pu15HbMmiWZq9KTk8XoQ'
+CONSUMER_KEY = 'Sb9KbtQoGRrI1yyi9z6D7fGTh'
+CONSUMER_SECRET = 'RGSTd9jJhegi59AuxqNklIZSocPnQugb2OO5IT2JK7g6CilJ5Z'
+
+api = twitter.Api(consumer_key=CONSUMER_KEY,
+                    consumer_secret=CONSUMER_SECRET,
+                    access_token_key=ACCESS_TOKEN,
+                    access_token_secret=ACCESS_SECRET)
+
 
 @app.route('/')
 @app.route('/index.html')
 def index():
-    code = request.args.get('code')
-    client_id = '6b64bcfaa3be4735acc0a509e2bd130d'
-    client_secret = 'f37f135de06942edb1d7931e7cf410f3'
-    redirect_uri = 'http://127.0.0.1:5000/'
-    unauthenticated_api = client.InstagramAPI(client_id=client_id,
-                                              client_secret=client_secret,
-                                              redirect_uri=redirect_uri)
-    user = {'nickname':'pal'}
-    if not code:
-        return render_template('index.html', user=user)
-    if not 'user' in session.keys():
-        try:
-            access_token, user_info = unauthenticated_api.exchange_code_for_access_token(code)
-            session['token'] = access_token
-            session['user'] = user_info
+    return render_template('index.html')
 
-        except Exception as e:
-            return render_template('index.html', user=user)
+@app.route('/', methods=['POST'])
+@app.route('/index.html', methods=['POST'])
+def index_post():
+    text = request.form['text']
+    processed_text = text.upper()
+    values = {'q': text}
+    data = urllib.urlencode(values) + '%20%3A)'
+    # data = data + '&lang=en&result_type=recent'
+    data = data.encode('utf8')
 
-    api = client.InstagramAPI(access_token=session['token'], client_secret=client_secret)
+    iterator = api.GetSearch(data)
+    iterator = (result.AsDict() for result in iterator)
 
-    user = session['user']
-    userID = user['id']
+    tweetList = []
+    for tweet in iterator:
+        string = tweet['text'].encode('utf8')
+        datum = urllib.urlencode({"text": string})
+        u = urllib.urlopen("http://text-processing.com/api/sentiment/", datum)
+        sentimentResponse = json.loads(u.read())
+        # print sentimentResponse['label']
+        tweet['label'] = sentimentResponse["label"]
+        if tweet['label'] == 'pos':
+            tweetList.append(tweet)
+        # print "potato",tweet
 
-    recent_media, next_ = api.user_recent_media(user_id=userID, count=20)
 
-    recent_media.sort(key=lambda x: x.like_count, reverse=True)
 
-    return render_template('index.html',
-                               title='Home',
-                               user=session['user'],
-                               media=recent_media)
+    return render_template('index.html', text=processed_text, iterator= tweetList, url=data)
+
+

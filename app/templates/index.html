@@ -2,8 +2,9 @@
 
 <html>
   <head>
-    <title>{{ title }} - microblog</title>
+    <title>{{ title }} </title>
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='skeleton.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
   </head>
 
   <body>
@@ -11,21 +12,28 @@
       <div class="row">
 
         <div class="twelve columns" style="text-align:center;">
+          <h1>posifind</h1>
+          <form action="." method="POST">
+              <input type="text" name="text">
+              <input type="submit" name="my-form" value="Send">
+          </form>
 
-          {% if user.nickname == 'pal' %}
-            <h1>Hello, pal!</h1>
-            <a class="button" href="https://api.instagram.com/oauth/authorize/?client_id=6b64bcfaa3be4735acc0a509e2bd130d&redirect_uri=http://127.0.0.1:5000/&response_type=code">Sign in to Instagram</a>
+        {% if text %}
+          <h4>{{text}}</h4>
+        {% endif %}
 
-          {% else %}
-            <h1>Hello, {{user['full_name']}}!</h1>
-          {% endif %}
 
-          {% for x in media %}
-              <img src="{{x.images.standard_resolution.url}}" border='1'>
-              <p>{{x['caption'].text}}</p>
-              <p>{{x['created_time'].strftime('%m/%d %I:%M %p')}}</p>
-          {% endfor %}
+        {% for tweets in iterator: %}
+        <div class="tweet">
 
+            <p>@{{tweets['user']['screen_name']}}: {{tweets['text']}}</p>
+            <a href="http://twitter.com/{{tweets['user']['screen_name']}}/status/{{tweets['id']}}">
+              <p>Go to tweet!</p>
+            </a>
+            <br>
+
+        </div>
+        {% endfor %}
 
         </div>
 
